@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CurlPRO Статистика</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#060c1a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CurlPRO">
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    :root{
+      --bg:#060c1a;--blue:#1a73e8;--blue2:#4da3ff;--blue3:#0d47a1;
+      --green:#00e676;--red:#ff5252;--gold:#ffd740;--white:#fff;
+      --panel:rgba(18,26,46,.92);--panel2:rgba(9,18,38,.76);
+      --font:'Inter',sans-serif;--display:'Bebas Neue',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font);background:var(--bg);min-height:100vh;color:var(--white);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+    button,input,select{font:inherit}
+    .bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .bg::before{content:'';position:absolute;inset:0;background:
+      radial-gradient(ellipse 80% 58% at 8% -12%,rgba(13,71,161,.7) 0%,transparent 56%),
+      radial-gradient(ellipse 58% 48% at 100% 105%,rgba(0,80,52,.62) 0%,transparent 58%),
+      linear-gradient(180deg,#060c1a 0%,#091226 58%,#060c1a 100%);
+    }
+    .ice-lines{position:absolute;inset:0;background:
+      linear-gradient(90deg,transparent 0 10%,rgba(77,163,255,.045) 10.1%,transparent 10.35% 49.6%,rgba(255,255,255,.035) 49.8%,transparent 50.1% 89.6%,rgba(77,163,255,.045) 89.8%,transparent 90.1%),
+      repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 54px);
+      mask-image:linear-gradient(to bottom,rgba(0,0,0,.6),rgba(0,0,0,.12));
+    }
+    .house{position:absolute;border-radius:50%;border:1px solid rgba(77,163,255,.12)}
+    .house.one{width:620px;height:620px;right:-220px;top:-170px}
+    .house.two{width:420px;height:420px;right:-120px;top:-70px;border-color:rgba(255,82,82,.1)}
+    .house.three{width:230px;height:230px;right:-25px;top:25px;border-color:rgba(255,255,255,.08)}
+    .page{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:26px 14px 44px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .logo{width:52px;height:52px;border-radius:17px;background:linear-gradient(145deg,#1e7cf0,#0d47a1);box-shadow:0 0 34px rgba(26,115,232,.36);display:grid;place-items:center;overflow:hidden;flex-shrink:0}
+    .logo img{width:100%;height:100%;object-fit:cover}
+    .brand-title{line-height:1}
+    .brand-title h1{font-family:var(--display);font-size:2.25rem;letter-spacing:3px;background:linear-gradient(135deg,#fff 15%,#4da3ff 58%,#00e676 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .brand-title span{display:block;margin-top:2px;font-size:.62rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:rgba(77,163,255,.64)}
+    .top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .mini-btn{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.045);color:rgba(255,255,255,.7);border-radius:999px;padding:8px 12px;text-decoration:none;font-size:.72rem;font-weight:800;letter-spacing:.5px;white-space:nowrap}
+    .mini-btn:hover{border-color:rgba(77,163,255,.45);background:rgba(77,163,255,.12);color:#fff}
+    .shell{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);gap:16px;align-items:start}
+    .match-center{min-height:430px;padding:22px;border-radius:8px;border:1px solid rgba(77,163,255,.18);background:linear-gradient(155deg,rgba(12,31,69,.88),rgba(6,12,26,.92));box-shadow:0 28px 80px rgba(0,0,0,.42);position:relative;overflow:hidden}
+    .match-center::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,#4da3ff,#00e676,transparent)}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,230,118,.18);background:rgba(0,230,118,.07);color:rgba(0,230,118,.86);border-radius:999px;padding:6px 10px;font-size:.68rem;font-weight:900;letter-spacing:.9px;text-transform:uppercase}
+    .hero-title{font-family:var(--display);font-size:3.1rem;letter-spacing:4px;line-height:.95;margin:18px 0 8px;color:#fff}
+    .hero-copy{max-width:680px;color:rgba(255,255,255,.62);font-size:.94rem;line-height:1.62}
+    .command-row{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 20px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:8px;border:1px solid rgba(77,163,255,.35);background:linear-gradient(135deg,rgba(26,115,232,.42),rgba(13,71,161,.56));color:#fff;padding:13px 18px;min-height:46px;cursor:pointer;text-decoration:none;font-weight:900;letter-spacing:.4px;transition:transform .15s,border-color .15s,background .15s,box-shadow .15s}
+    .btn:hover{transform:translateY(-1px);border-color:#4da3ff;box-shadow:0 14px 34px rgba(26,115,232,.2)}
+    .btn.primary{background:linear-gradient(135deg,#1a73e8,#0d47a1);box-shadow:0 16px 42px rgba(26,115,232,.28)}
+    .btn.report{border-color:rgba(255,215,64,.36);background:linear-gradient(135deg,rgba(255,215,64,.16),rgba(26,115,232,.22));color:#ffd740}
+    .btn.ghost{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.78)}
+    .dash-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+    .metric{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);border-radius:8px;padding:12px;min-height:82px}
+    .metric-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:900;color:rgba(255,255,255,.38);margin-bottom:7px}
+    .metric-value{font-family:var(--display);font-size:1.85rem;letter-spacing:2px;line-height:1;color:#fff}
+    .metric-value.good{color:#00e676}.metric-value.gold{color:#ffd740}.metric-value.blue{color:#4da3ff}
+    .mode-section{margin-top:20px}
+    .section-title{display:flex;align-items:center;gap:10px;margin-bottom:10px;color:rgba(255,255,255,.84);font-size:.78rem;font-weight:900;letter-spacing:1.8px;text-transform:uppercase}
+    .section-title::after{content:'';height:1px;flex:1;background:linear-gradient(90deg,rgba(77,163,255,.24),transparent)}
+    .mode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .mode-card{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.035);border-radius:8px;padding:12px;text-align:left;color:#fff;cursor:pointer;min-height:118px;transition:border-color .15s,background .15s,transform .15s}
+    .mode-card:hover,.mode-card.active{border-color:rgba(77,163,255,.55);background:rgba(77,163,255,.1);transform:translateY(-1px)}
+    .mode-ico{font-size:1.35rem;margin-bottom:8px}.mode-name{font-weight:900;font-size:.9rem;margin-bottom:5px}.mode-desc{font-size:.72rem;line-height:1.45;color:rgba(255,255,255,.46)}
+    .side-stack{display:flex;flex-direction:column;gap:12px}
+    .panel-card{border:1px solid rgba(255,255,255,.09);background:var(--panel);border-radius:8px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.28)}
+    .panel-card h2{font-family:var(--display);letter-spacing:3px;color:#4da3ff;font-size:1.18rem;margin-bottom:10px}
+    .last-card{display:grid;gap:10px}
+    .scoreline{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px}
+    .score-team{font-weight:900;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score-num{font-family:var(--display);font-size:2.1rem;letter-spacing:2px}
+    .score-num.us{color:#00e676}.score-num.them{color:#ff5252}
+    .team-tools{display:grid;gap:10px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .inp,.sel{width:100%;min-width:0;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 12px;color:#fff;font-weight:800;outline:none}
+    .inp:focus,.sel:focus{border-color:rgba(77,163,255,.62);background:rgba(77,163,255,.08)}
+    .sel option{background:#0b1730;color:#fff}
+    .player-row{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:8px}
+    .roster-grid{display:grid;gap:8px;margin-top:10px}
+    .hint{font-size:.72rem;color:rgba(255,255,255,.42);line-height:1.5}
+    .ok{font-size:.78rem;color:rgba(0,230,118,.86);font-weight:900}
+    .err{font-size:.78rem;color:rgba(255,82,82,.92);font-weight:900}
+    .pro-strip{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:center;border:1px solid rgba(255,215,64,.18);background:rgba(255,215,64,.07);border-radius:8px;padding:12px}
+    .pro-icon{width:42px;height:42px;border-radius:8px;display:grid;place-items:center;background:rgba(255,215,64,.12);color:#ffd740;font-size:1.2rem}
+    .pro-title{font-weight:900;color:#ffd740;margin-bottom:3px}.pro-copy{font-size:.73rem;color:rgba(255,255,255,.5);line-height:1.45}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+    .tab{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);color:rgba(255,255,255,.56);padding:9px 12px;border-radius:999px;cursor:pointer;font-weight:900;font-size:.72rem;letter-spacing:.7px;text-transform:uppercase}
+    .tab.active{border-color:#4da3ff;background:rgba(26,115,232,.22);color:#fff}
+    .panel{display:none}.panel.active{display:block}
+    .rules-box{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);border-radius:8px;padding:18px;text-align:center}
+    a{color:#4da3ff}
+    @media(max-width:980px){.shell{grid-template-columns:1fr}.dash-grid,.mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-title{font-size:2.55rem}.topbar{align-items:flex-start}}
+    @media(max-width:560px){.page{padding:18px 9px 34px}.topbar{flex-direction:column}.top-actions{justify-content:flex-start}.brand-title h1{font-size:1.8rem}.hero-title{font-size:2.05rem;letter-spacing:2px}.match-center,.panel-card{padding:13px}.dash-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mode-grid{grid-template-columns:1fr}.command-row .btn{width:100%}.player-row{grid-template-columns:1fr}.logo{width:46px;height:46px}}
+  </style>
+</head>
+<body>
+  <div class="bg"><div class="ice-lines"></div><div class="house one"></div><div class="house two"></div><div class="house three"></div></div>
+  <main class="page">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo"><img src="./images/curlpro-icon.png" alt="CurlPRO"></div>
+        <div class="brand-title">
+          <h1>CurlPRO</h1>
+          <span>Статистика керлинга</span>
+        </div>
+      </div>
+      <div class="top-actions">
+        <a class="mini-btn" href="./official-rules.pdf" target="_blank" rel="noopener">Правила</a>
+        <a class="mini-btn" href="https://t.me/curlpro" target="_blank" rel="noopener">Поддержка</a>
+      </div>
+    </div>
+
+    <div class="shell">
+      <section class="match-center">
+        <div class="eyebrow">Match Center</div>
+        <div class="hero-title">Пульт команды перед матчем</div>
+        <p class="hero-copy">Выберите состав, режим игры и запускайте статистику. После матча CurlPRO соберёт профессиональный PDF-отчёт с итогами, MVP, точностью и аналитикой по броскам.</p>
+
+        <div class="command-row">
+          <button class="btn primary" id="startStatsBtn">Начать матч</button>
+          <button class="btn ghost" id="quickStartBtn">Быстрый старт</button>
+          <a class="btn report" href="./statistics.html">PDF-отчёт</a>
+        </div>
+        <div id="startErr" class="err" style="display:none;margin-bottom:10px"></div>
+
+        <div class="dash-grid">
+          <div class="metric"><div class="metric-label">Сегодня</div><div class="metric-value blue" id="todayMatches">0</div></div>
+          <div class="metric"><div class="metric-label">Средняя точность</div><div class="metric-value good" id="avgAccuracy">—</div></div>
+          <div class="metric"><div class="metric-label">Команды</div><div class="metric-value gold" id="teamsCount">0</div></div>
+          <div class="metric"><div class="metric-label">Всего матчей</div><div class="metric-value" id="historyCount">0</div></div>
+        </div>
+
+        <div class="mode-section">
+          <div class="section-title">Режим</div>
+          <div class="mode-grid" id="modeGrid">
+            <button class="mode-card active" data-mode="Матч"><div class="mode-ico">🏆</div><div class="mode-name">Матч</div><div class="mode-desc">Полный протокол игры и финальный отчёт.</div></button>
+            <button class="mode-card" data-mode="Тренировка"><div class="mode-ico">🎯</div><div class="mode-name">Тренировка</div><div class="mode-desc">Фокус на точности игроков и типах бросков.</div></button>
+            <button class="mode-card" data-mode="Турнир"><div class="mode-ico">📋</div><div class="mode-name">Турнир</div><div class="mode-desc">Несколько матчей подряд в одном рабочем дне.</div></button>
+            <button class="mode-card" data-mode="Быстрый счёт"><div class="mode-ico">⚡</div><div class="mode-name">Быстрый счёт</div><div class="mode-desc">Моментальный старт с готовым составом.</div></button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="panel-card">
+          <h2>Последний матч</h2>
+          <div class="last-card" id="lastMatchCard"></div>
+        </section>
+
+        <section class="panel-card">
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="stats" role="tab">Команда</button>
+            <button class="tab" data-tab="rules" role="tab">Правила</button>
+            <button class="tab" data-tab="channels" role="tab">Каналы</button>
+          </div>
+
+          <section class="panel active" id="tab-stats" role="tabpanel">
+            <div class="team-tools">
+              <div class="row">
+                <select class="sel" id="teamSelect"></select>
+                <button class="btn ghost" id="teamDeleteBtn" type="button">Удалить</button>
+              </div>
+              <input class="inp" id="newTeamName" placeholder="Название команды" maxlength="32" />
+              <div id="playersForm" class="roster-grid"></div>
+              <button class="btn" id="teamCreateBtn" type="button">Сохранить команду</button>
+              <div id="teamMsg" class="hint"></div>
+            </div>
+          </section>
+
+          <section class="panel" id="tab-rules" role="tabpanel">
+            <div class="rules-box">
+              <div style="font-size:2rem;margin-bottom:8px">📄</div>
+              <div class="hint" style="margin-bottom:12px">Официальные правила кёрлинга в PDF.</div>
+              <a href="./official-rules.pdf" target="_blank" class="btn ghost" style="text-decoration:none">Открыть PDF</a>
+            </div>
+          </section>
+
+          <section class="panel" id="tab-channels" role="tabpanel">
+            <div class="hint">
+              <strong style="color:#fff">CurlPRO</strong><br>
+              Новости: <a href="https://t.me/curlpro_channel" target="_blank" rel="noopener">@curlpro_channel</a><br>
+              Поддержка: <a href="https://t.me/curlpro" target="_blank" rel="noopener">@curlpro</a>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel-card">
+          <div class="pro-strip">
+            <div class="pro-icon">PDF</div>
+            <div>
+              <div class="pro-title">Профессиональный отчёт</div>
+              <div class="pro-copy">После матча: счёт, MVP, графики, типы бросков, комментарии и тренерское резюме.</div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const TEAM_KEY='curlpro_teams_v1';
+    const TEAM_SEL='curlpro_selected_team_id';
+    const ACTIVE_ROSTER='curlpro_active_roster_v1';
+    const HIST_KEY='curling_history_v1';
+    const MODE_KEY='curlpro_match_mode';
+
+    function uid(){return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+    function loadTeams(){try{return JSON.parse(localStorage.getItem(TEAM_KEY)||'[]');}catch(e){return[];}}
+    function saveTeams(list){try{localStorage.setItem(TEAM_KEY,JSON.stringify(list));}catch(e){}}
+    function getSelectedTeamId(){try{return localStorage.getItem(TEAM_SEL)||'';}catch(e){return'';}}
+    function setSelectedTeamId(id){try{localStorage.setItem(TEAM_SEL,id);}catch(e){}}
+    function loadHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]');}catch(e){return[];}}
+
+    function setTab(key){
+      document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===key));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+key));
+      try{history.replaceState(null,'','#'+key);}catch(e){}
+    }
+    document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setTab(t.dataset.tab)));
+
+    function setMsg(text,kind){
+      const el=document.getElementById('teamMsg');
+      el.className=kind==='err'?'err':kind==='ok'?'ok':'hint';
+      el.textContent=text||'';
+    }
+
+    function renderPlayersForm(){
+      const wrap=document.getElementById('playersForm');
+      wrap.innerHTML='';
+      for(let i=0;i<5;i++){
+        const row=document.createElement('div');
+        row.className='player-row';
+        row.innerHTML=`
+          <input class="inp" data-player-name="${i}" placeholder="Игрок ${i+1}: имя" />
+          <select class="sel" data-player-num="${i}">
+            <option value="">Номер</option>
+            <option value="1">1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          </select>`;
+        wrap.appendChild(row);
+      }
+    }
+
+    function renderTeamSelect(){
+      const sel=document.getElementById('teamSelect');
+      const teams=loadTeams();
+      const cur=getSelectedTeamId();
+      sel.innerHTML='';
+      const empty=document.createElement('option');
+      empty.value='';
+      empty.textContent=teams.length?'Выберите команду':'Команд пока нет';
+      sel.appendChild(empty);
+      teams.forEach(t=>{
+        const o=document.createElement('option');
+        o.value=t.id;o.textContent=t.name;
+        if(t.id===cur)o.selected=true;
+        sel.appendChild(o);
+      });
+      document.getElementById('teamsCount').textContent=teams.length;
+    }
+
+    function createTeamFromForm(){
+      const name=document.getElementById('newTeamName').value.trim();
+      if(!name){setMsg('Введите название команды.','err');return null;}
+      const players=[];
+      for(let i=0;i<5;i++){
+        const pn=document.querySelector(`[data-player-name="${i}"]`).value.trim();
+        const num=document.querySelector(`[data-player-num="${i}"]`).value;
+        players.push({name:pn,number:Number(num)});
+      }
+      if(players.some(p=>!p.name)||players.some(p=>!p.number)){setMsg('Заполните всех 5 игроков: имя и номер.','err');return null;}
+      if(new Set(players.map(p=>p.number)).size!==5){setMsg('Номера должны быть уникальными.','err');return null;}
+      return {id:uid(),name,players};
+    }
+
+    document.getElementById('teamCreateBtn').addEventListener('click',()=>{
+      const team=createTeamFromForm();if(!team)return;
+      const teams=loadTeams();teams.push(team);saveTeams(teams);setSelectedTeamId(team.id);
+      renderTeamSelect();renderDashboard();setMsg('Команда сохранена. Можно начинать матч.','ok');
+    });
+    document.getElementById('teamSelect').addEventListener('change',e=>{setSelectedTeamId(e.target.value);setMsg('', 'hint');});
+    document.getElementById('teamDeleteBtn').addEventListener('click',()=>{
+      const id=getSelectedTeamId();if(!id){setMsg('Сначала выберите команду.','err');return;}
+      saveTeams(loadTeams().filter(t=>t.id!==id));setSelectedTeamId('');renderTeamSelect();renderDashboard();setMsg('Команда удалена.','ok');
+    });
+
+    function ensureDemoTeam(){
+      let teams=loadTeams();
+      let team=teams.find(t=>t.id==='quick-curlpro');
+      if(!team){
+        team={id:'quick-curlpro',name:'CurlPRO',players:[
+          {name:'Скип',number:4},{name:'Вице-скип',number:3},{name:'Второй',number:2},{name:'Первый',number:1},{name:'Запасной',number:5}
+        ]};
+        teams.push(team);saveTeams(teams);
+      }
+      setSelectedTeamId(team.id);renderTeamSelect();return team;
+    }
+
+    function startStats(forceQuick){
+      const errEl=document.getElementById('startErr');
+      const teamId=forceQuick?ensureDemoTeam().id:getSelectedTeamId();
+      const team=loadTeams().find(t=>t.id===teamId);
+      if(!team){errEl.textContent='Сначала создайте или выберите команду.';errEl.style.display='block';return;}
+      errEl.style.display='none';
+      try{localStorage.setItem(ACTIVE_ROSTER,JSON.stringify({teamId:team.id,teamName:team.name,players:team.players||[],mode:localStorage.getItem(MODE_KEY)||'Матч'}));}catch(e){}
+      try{window.location.replace('./statistics.html');}catch(e){window.location.href='./statistics.html';}
+    }
+    document.getElementById('startStatsBtn').addEventListener('click',()=>startStats(false));
+    document.getElementById('quickStartBtn').addEventListener('click',()=>startStats(true));
+
+    document.querySelectorAll('.mode-card').forEach(card=>{
+      card.addEventListener('click',()=>{
+        document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active'));
+        card.classList.add('active');
+        try{localStorage.setItem(MODE_KEY,card.dataset.mode);}catch(e){}
+      });
+    });
+    const savedMode=localStorage.getItem(MODE_KEY);
+    if(savedMode){
+      const card=document.querySelector(`.mode-card[data-mode="${savedMode}"]`);
+      if(card){document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active'));card.classList.add('active');}
+    }
+
+    function renderDashboard(){
+      const hist=loadHistory();
+      document.getElementById('historyCount').textContent=hist.length;
+      const today=new Date().toLocaleDateString('ru-RU');
+      const todayItems=hist.filter(m=>String(m.date||'').startsWith(today.slice(0,5))||new Date(m.id||0).toLocaleDateString('ru-RU')===today);
+      document.getElementById('todayMatches').textContent=todayItems.length;
+      const rated=hist.map(m=>Number(m.totalPct)).filter(v=>Number.isFinite(v));
+      document.getElementById('avgAccuracy').textContent=rated.length?Math.round(rated.reduce((a,b)=>a+b,0)/rated.length)+'%':'—';
+
+      const box=document.getElementById('lastMatchCard');
+      if(!hist.length){
+        box.innerHTML='<div class="hint">Здесь появится последний сохранённый матч: счёт, точность и быстрый переход к отчёту.</div>';
+        return;
+      }
+      const m=hist[0];
+      box.innerHTML=`
+        <div class="scoreline">
+          <div class="score-team">${m.usName||'МЫ'}</div><div class="score-num us">${m.usScore??'—'}</div>
+          <div style="color:rgba(255,255,255,.24);font-weight:900">:</div>
+          <div class="score-num them">${m.themScore??'—'}</div><div class="score-team" style="text-align:right">${m.themName||'ОНИ'}</div>
+        </div>
+        <div class="hint">${m.date||'последний матч'} · точность ${m.totalPct!=null?m.totalPct+'%':'—'}</div>
+        <a class="btn report" href="./statistics.html" style="text-decoration:none">Открыть отчёт</a>`;
+    }
+
+    if('serviceWorker' in navigator){navigator.serviceWorker.register('/service-worker.js').catch(()=>{});}
+    renderPlayersForm();
+    renderTeamSelect();
+    renderDashboard();
+    const fromHash=(location.hash||'').replace('#','');
+    if(fromHash&&document.getElementById('tab-'+fromHash))setTab(fromHash);
+  </script>
+</body>
+</html>

@@ -1717,67 +1717,373 @@ if('serviceWorker' in navigator){
 /* ══════════════════════════════════════════════════
    FEATURE 1: SHOT TYPE POPUP
 ══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   FEATURE 1: SHOT TYPE POPUP + CUSTOM SHOT TYPES
+══════════════════════════════════════════════════ */
+
 let aShotTypeBtn=null;
+
+/* Добавляем пользовательские типы, которые уже были сохранены */
+function ensureCustomShotTypes(){
+  if(!Array.isArray(shotTypes))return;
+
+  shotTypes.forEach(player=>{
+    if(!Array.isArray(player))return;
+
+    player.forEach(end=>{
+      if(!Array.isArray(end))return;
+
+      end.forEach(tp=>{
+        if(tp && !SHOT_TYPES.includes(tp)){
+          SHOT_TYPES.push(tp);
+        }
+      });
+    });
+  });
+}
+
 function openShotTypePop(btn){
   aShotTypeBtn=btn;
-  const pi=+btn.dataset.pi,e=+btn.dataset.e,s=+btn.dataset.s;
-  const curType=shotTypes[pi][e][s];
-  document.getElementById('st-ctx').textContent=`${names[pi]} — Энд ${e+1}, бросок ${s+1}`;
-  const grid=document.getElementById('st-grid');
-  grid.innerHTML=SHOT_TYPES.map(tp=>`<button class="st-opt${curType===tp?' active':''}" data-tp="${tp}">${tp}</button>`).join('');
-  grid.querySelectorAll('.st-opt').forEach(b=>b.addEventListener('click',()=>applyShortType(b.dataset.tp)));
-  document.getElementById('stpov').classList.add('show');
-}
-function closeShotTypePop(){document.getElementById('stpov').classList.remove('show');aShotTypeBtn=null;}
-function applyShortType(tp){
-  if(!aShotTypeBtn)return;
-  const pi=+aShotTypeBtn.dataset.pi,e=+aShotTypeBtn.dataset.e,s=+aShotTypeBtn.dataset.s;
-  shotTypes[pi][e][s]=tp;
-  aShotTypeBtn.textContent=tp.slice(0,4);
-  aShotTypeBtn.classList.add('has-type');
-  closeShotTypePop();renderShotStats();syncToCurrentMatch();saveState();
-}
-document.getElementById('st-cl').addEventListener('click',closeShotTypePop);
-document.getElementById('st-clr').addEventListener('click',()=>{
-  if(!aShotTypeBtn)return;
-  const pi=+aShotTypeBtn.dataset.pi,e=+aShotTypeBtn.dataset.e,s=+aShotTypeBtn.dataset.s;
-  shotTypes[pi][e][s]=null;
-  aShotTypeBtn.textContent='тип';aShotTypeBtn.classList.remove('has-type');
-  closeShotTypePop();renderShotStats();syncToCurrentMatch();saveState();
-});
-document.getElementById('stpov').addEventListener('click',ev=>{if(ev.target===document.getElementById('stpov'))closeShotTypePop();});
 
-function renderShotStats(){
-  const grid=document.getElementById('shotStatsGrid');
-  if(!grid)return;
-  /* Aggregate: for each type, collect all shot scores */
-  const stats={};
-  SHOT_TYPES.forEach(tp=>{stats[tp]=[];});
-  names.forEach((_,pi)=>{
-    for(let e=0;e<N;e++){
-      for(let s=0;s<2;s++){
-        const tp=shotTypes[pi][e][s];
-        const val=shots[pi][e][s];
-        if(tp&&val!==null)stats[tp].push(val);
-      }
+  const pi=+btn.dataset.pi;
+  const e=+btn.dataset.e;
+  const s=+btn.dataset.s;
+  const curType=shotTypes[pi][e][s];
+
+  ensureCustomShotTypes();
+
+  document.getElementById('st-ctx').textContent=
+    `${names[pi]} — Энд ${e+1}, бросок ${s+1}`;
+
+  const grid=document.getElementById('st-grid');
+
+  /* Стандартные и пользовательские типы */
+  grid.innerHTML=SHOT_TYPES.map(tp=>
+    `<button class="st-opt${curType===tp?' active':''}" data-tp="${tp}">${tp}</button>`
+  ).join('');
+
+  grid.querySelectorAll('.st-opt').forEach(b=>{
+    b.addEventListener('click',()=>{
+      applyShortType(b.dataset.tp);
+    });
+  });
+
+  /* Кнопка "Свой бросок" */
+  const customWrap=document.createElement('div');
+
+  customWrap.style.cssText=`
+    display:flex;
+    gap:7px;
+    margin:10px 0;
+  `;
+
+  customWrap.innerHTML=`
+    <input
+      id="st-custom-input"
+      type="text"
+      maxlength="40"
+      placeholder="Свой вариант..."
+      style="
+        flex:1;
+        min-width:0;
+        padding:10px 11px;
+        border-radius:10px;
+        border:1px solid rgba(77,163,255,.18);
+        background:rgba(255,255,255,.04);
+        color:#fff;
+        outline:none;
+        font-family:var(--font);
+        font-size:.72rem;
+      "
+    >
+
+    <button
+      id="st-custom-add"
+      type="button"
+      style="
+        padding:10px 12px;
+        border-radius:10px;
+        border:1px solid rgba(0,230,118,.3);
+        background:rgba(0,230,118,.1);
+        color:#00e676;
+        cursor:pointer;
+        font-family:var(--font);
+        font-weight:700;
+        font-size:.7rem;
+        white-space:nowrap;
+      "
+    >
+      Добавить
+    </button>
+  `;
+
+  /*
+     Вставляем поле между стандартными кнопками
+     и кнопкой "Очистить тип"
+  */
+  const clearBtn=document.getElementById('st-clr');
+  clearBtn.parentNode.insertBefore(customWrap,clearBtn);
+
+  const input=document.getElementById('st-custom-input');
+  const addBtn=document.getElementById('st-custom-add');
+
+  function addCustomShotType(){
+    const value=input.value.trim();
+
+    if(!value){
+      input.focus();
+      return;
+    }
+
+    /*
+       Если такого типа ещё нет —
+       добавляем его в общий список.
+    */
+    if(!SHOT_TYPES.includes(value)){
+      SHOT_TYPES.push(value);
+    }
+
+    /* Сразу выбираем новый тип */
+    applyShortType(value);
+  }
+
+  addBtn.addEventListener('click',addCustomShotType);
+
+  input.addEventListener('keydown',ev=>{
+    if(ev.key==='Enter'){
+      ev.preventDefault();
+      addCustomShotType();
     }
   });
-  const used=SHOT_TYPES.filter(tp=>stats[tp].length>0);
-  if(!used.length){grid.innerHTML=`<div style="color:rgba(255,255,255,.2);font-size:.72rem;padding:8px;">Отметьте типы бросков — здесь появится статистика</div>`;return;}
-  const allPcts=used.map(tp=>{const arr=stats[tp];return arr.length?Math.round(100*arr.reduce((a,b)=>a+b,0)/(4*arr.length)):0;});
-  const maxPct=Math.max(...allPcts,1);
-  grid.innerHTML=used.map((tp,i)=>{
-    const arr=stats[tp];const pct=allPcts[i];
-    const barW=Math.round(pct/maxPct*100);
-    const col=pct>=75?'#00e676':pct>=50?'#ffd740':'#ff8a80';
-    return `<div class="sstat" title="${tp}: ${arr.length} бросков, ${pct}% точн.">
-      <div style="flex:1;min-width:0;">
-        <div class="sstat-name">${tp}</div>
-        <div class="sstat-bar-wrap"><div class="sstat-bar" style="width:${barW}%;background:${col}"></div></div>
-        <div style="font-size:.55rem;color:rgba(255,255,255,.28);margin-top:2px;" class="sstat-count">${arr.length} бр.</div>
+
+  document.getElementById('stpov').classList.add('show');
+}
+
+
+function closeShotTypePop(){
+  document.getElementById('stpov').classList.remove('show');
+  aShotTypeBtn=null;
+
+  /*
+     Удаляем поле "Свой вариант",
+     чтобы при следующем открытии оно создавалось заново.
+  */
+  const input=document.getElementById('st-custom-input');
+
+  if(input){
+    const wrap=input.parentElement;
+    if(wrap)wrap.remove();
+  }
+}
+
+
+function applyShortType(tp){
+  if(!aShotTypeBtn)return;
+
+  const pi=+aShotTypeBtn.dataset.pi;
+  const e=+aShotTypeBtn.dataset.e;
+  const s=+aShotTypeBtn.dataset.s;
+
+  /* На всякий случай добавляем пользовательский тип */
+  if(tp && !SHOT_TYPES.includes(tp)){
+    SHOT_TYPES.push(tp);
+  }
+
+  shotTypes[pi][e][s]=tp;
+
+  aShotTypeBtn.textContent=tp.slice(0,4);
+  aShotTypeBtn.classList.add('has-type');
+
+  closeShotTypePop();
+
+  renderShotStats();
+  syncToCurrentMatch();
+  saveState();
+}
+
+
+/* Закрытие окна */
+document.getElementById('st-cl')
+  .addEventListener('click',closeShotTypePop);
+
+
+/* Очистить тип */
+document.getElementById('st-clr')
+  .addEventListener('click',()=>{
+    if(!aShotTypeBtn)return;
+
+    const pi=+aShotTypeBtn.dataset.pi;
+    const e=+aShotTypeBtn.dataset.e;
+    const s=+aShotTypeBtn.dataset.s;
+
+    shotTypes[pi][e][s]=null;
+
+    aShotTypeBtn.textContent='тип';
+    aShotTypeBtn.classList.remove('has-type');
+
+    closeShotTypePop();
+
+    renderShotStats();
+    syncToCurrentMatch();
+    saveState();
+  });
+
+
+/* Закрытие по нажатию на фон */
+document.getElementById('stpov')
+  .addEventListener('click',ev=>{
+    if(ev.target===document.getElementById('stpov')){
+      closeShotTypePop();
+    }
+  });
+
+
+/* ══════════════════════════════════════════════════
+   СТАТИСТИКА ПО ТИПАМ БРОСКОВ
+══════════════════════════════════════════════════ */
+
+function renderShotStats(){
+
+  const grid=document.getElementById('shotStatsGrid');
+
+  if(!grid)return;
+
+  /*
+     Если пользовательские типы уже были сохранены,
+     возвращаем их в общий список.
+  */
+  ensureCustomShotTypes();
+
+  const stats={};
+
+  SHOT_TYPES.forEach(tp=>{
+    stats[tp]=[];
+  });
+
+
+  names.forEach((_,pi)=>{
+
+    for(let e=0;e<N;e++){
+
+      for(let s=0;s<2;s++){
+
+        const tp=shotTypes[pi][e][s];
+        const val=shots[pi][e][s];
+
+        if(tp && val!==null){
+
+          /*
+             Защита на случай старого сохранения,
+             где пользовательский тип ещё не был
+             в SHOT_TYPES.
+          */
+          if(!stats[tp]){
+            stats[tp]=[];
+          }
+
+          stats[tp].push(val);
+        }
+
+      }
+
+    }
+
+  });
+
+
+  const used=Object.keys(stats)
+    .filter(tp=>stats[tp].length>0);
+
+
+  if(!used.length){
+
+    grid.innerHTML=`
+      <div style="
+        color:rgba(255,255,255,.2);
+        font-size:.72rem;
+        padding:8px;
+      ">
+        Отметьте типы бросков — здесь появится статистика
       </div>
-      <div class="sstat-val" style="color:${col}">${pct}%</div>
-    </div>`;
+    `;
+
+    return;
+  }
+
+
+  const allPcts=used.map(tp=>{
+
+    const arr=stats[tp];
+
+    return arr.length
+      ? Math.round(
+          100*arr.reduce((a,b)=>a+b,0)/(4*arr.length)
+        )
+      : 0;
+
+  });
+
+
+  const maxPct=Math.max(...allPcts,1);
+
+
+  grid.innerHTML=used.map((tp,i)=>{
+
+    const arr=stats[tp];
+    const pct=allPcts[i];
+
+    const barW=Math.round(pct/maxPct*100);
+
+    const col=
+      pct>=75
+        ? '#00e676'
+        : pct>=50
+          ? '#ffd740'
+          : '#ff8a80';
+
+
+    return `
+      <div
+        class="sstat"
+        title="${tp}: ${arr.length} бросков, ${pct}% точн."
+      >
+
+        <div style="flex:1;min-width:0;">
+
+          <div class="sstat-name">
+            ${tp}
+          </div>
+
+          <div class="sstat-bar-wrap">
+            <div
+              class="sstat-bar"
+              style="width:${barW}%;background:${col}"
+            ></div>
+          </div>
+
+          <div
+            style="
+              font-size:.55rem;
+              color:rgba(255,255,255,.28);
+              margin-top:2px;
+            "
+            class="sstat-count"
+          >
+            ${arr.length} бр.
+          </div>
+
+        </div>
+
+        <div
+          class="sstat-val"
+          style="color:${col}"
+        >
+          ${pct}%
+        </div>
+
+      </div>
+    `;
+
   }).join('');
 }
 

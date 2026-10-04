@@ -1105,7 +1105,7 @@ const endScores=Array.from({length:N},()=>({us:null,them:null}));
 const avatarColors=[['#1e7cf0','#0d3a8a'],['#00b368','#004d2d'],['#e05a00','#7a2f00'],['#9b4dca','#4a1060'],['#c4a000','#6b5500']];
 
 /* FEATURE 1: Shot types data */
-const SHOT_TYPES=['Дро','Тейк-аут','Гард','Фриз','Ролл','Пил','Тэп-бэк','Сплит','Дабл','Трипл','Ранбэк'];
+let SHOT_TYPES=['Дро','Тейк-аут','Гард','Фриз','Ролл','Пил','Тэп-бэк','Сплит','Дабл','Трипл','Ранбэк'];
 /* shotTypes[playerIndex][endIndex][shotIndex] = type string or null */
 const shotTypes=names.map(()=>Array.from({length:N},()=>[null,null]));
 
